@@ -58,8 +58,14 @@ impl Dispatch<wl_registry::WlRegistry, ()> for AppData {
                 debug!("| Received wl_registry::Event::GlobalRemove");
                 if let Some((_, compositor_name)) = &state.compositor {
                     if name == *compositor_name {
-                        warn!("Compositor was removed!");
+                        warn!("WlCompositor was removed");
                         state.compositor = None;
+                        state.surface = None;
+                    }
+                } else if let Some((_, inhibit_manager_name)) = &state.inhibit_manager {
+                    if name == *inhibit_manager_name {
+                        warn!("ZwpIdleInhibitManagerV1 was removed");
+                        state.inhibit_manager = None;
                     }
                 }
             }
