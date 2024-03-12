@@ -24,8 +24,8 @@
           buildInputs = with pkgs; [rustfmt cargo];
         };
         packages = {
-          default = self'.packages.wayfreeze;
-          wayfreeze = pkgs.rustPlatform.buildRustPackage {
+          default = self'.packages.vigiland;
+          vigiland = pkgs.rustPlatform.buildRustPackage {
             name = "Vigiland";
             pname = "Vigiland";
             src = ./.;
