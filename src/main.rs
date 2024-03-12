@@ -1,8 +1,13 @@
 use env_logger;
 use log::{debug, error, info, warn};
 use std::error::Error;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use wayland_client::{
-    protocol::{wl_compositor, wl_registry, wl_surface},
+    protocol::{
+        wl_compositor, wl_registry,
+        wl_surface,
+    },
     Connection, Dispatch, Proxy,
 };
 use wayland_protocols::wp::idle_inhibit::zv1::client::{
@@ -14,6 +19,7 @@ struct AppData {
     compositor: Option<(wl_compositor::WlCompositor, u32)>,
     surface: Option<wl_surface::WlSurface>,
     inhibit_manager: Option<(ZwpIdleInhibitManagerV1, u32)>,
+    inhibitor: Option<ZwpIdleInhibitorV1>,
 }
 
 impl Dispatch<wl_registry::WlRegistry, ()> for AppData {
@@ -113,6 +119,14 @@ impl Dispatch<ZwpIdleInhibitorV1, ()> for AppData {
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
 
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        info!("Ctrl+C pressed, exiting...");
+        r.store(false, Ordering::SeqCst);
+    })
+    .expect("Error setting handler");
+
     let connection = Connection::connect_to_env().unwrap();
     let mut event_queue = connection.new_event_queue();
     let queue_handle = event_queue.handle();
@@ -130,8 +144,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         error!("No WlSurface loaded");
         return Ok(());
     };
-    inhibit_manager.create_inhibitor(surface, &queue_handle, ());
+    // create idle inhibitor
+    state.inhibitor = Some(inhibit_manager.create_inhibitor(surface, &queue_handle, ()));
+    event_queue.roundtrip(&mut state).unwrap();
 
+    // wait for exit
+    while running.load(Ordering::SeqCst) {}
+
+    let Some((inhibit_manager, _)) = &state.inhibit_manager else {
+        error!("No ZwpIdleInhibitManagerV1 loaded");
+        return Ok(());
+    };
+    let Some(inhibitor) = &state.inhibitor else {
+        error!("No ZwpIdleInhibitorV1 loaded");
+        return Ok(());
+    };
+    // cleanup, destroy inhibitor & inhibit manager
+    inhibitor.destroy();
+    inhibit_manager.destroy();
     event_queue.roundtrip(&mut state).unwrap();
 
     Ok(())
