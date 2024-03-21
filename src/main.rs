@@ -2,6 +2,8 @@ use env_logger;
 use log::{debug, error, info, warn};
 use std::error::Error;
 use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};
 use wayland_client::{
     protocol::{
@@ -155,7 +157,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     event_queue.roundtrip(&mut state).unwrap();
 
     // wait for exit
-    while running.load(Ordering::SeqCst) {}
+    while running.load(Ordering::SeqCst) {
+        thread::sleep(Duration::from_millis(100));
+    }
 
     let Some((inhibit_manager, _)) = &state.inhibit_manager else {
         error!("No ZwpIdleInhibitManagerV1 loaded");
