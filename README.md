@@ -4,6 +4,12 @@ Inhibit idle behaviour of a Wayland compositor.
 
 ## Installing
 
+### Arch (AUR)
+```
+paru -S vigiland-git
+```
+
+### Nix
 Add the flake as an input:
 
 ```nix
