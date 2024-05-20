@@ -158,7 +158,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // wait for exit
     while running.load(Ordering::SeqCst) {
-        thread::sleep(Duration::from_millis(100));
+        std::hint::spin_loop();
     }
 
     let Some((inhibit_manager, _)) = &state.inhibit_manager else {
