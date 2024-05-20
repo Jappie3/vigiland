@@ -20,8 +20,8 @@
     packages = forAllSystems (pkgs: rec {
       default = vigiland;
       vigiland = pkgs.rustPlatform.buildRustPackage {
-        name = "Vigiland";
-        pname = "Vigiland";
+        name = "vigiland";
+        pname = "vigiland";
         src = ./.;
         cargoLock.lockFile = ./Cargo.lock;
         doCheck = true;
