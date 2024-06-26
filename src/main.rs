@@ -1,16 +1,10 @@
 use env_logger;
 use log::{debug, error, info, warn};
 use std::error::Error;
-use std::sync::Arc;
-use std::thread;
-use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use wayland_client::{
-    protocol::{
-        wl_compositor, wl_registry,
-        wl_surface,
-    },
+    protocol::{wl_compositor, wl_registry, wl_surface},
     Connection, Dispatch, Proxy,
 };
 use wayland_protocols::wp::idle_inhibit::zv1::client::{
