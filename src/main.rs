@@ -154,7 +154,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // wait for exit
     while !running.load(Ordering::Relaxed) {
-        std::hint::spin_loop();
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
 
     debug!("Cleaning up...");
