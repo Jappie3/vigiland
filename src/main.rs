@@ -161,6 +161,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         std::hint::spin_loop();
     }
 
+    debug!("Cleaning up...");
+
     let Some((inhibit_manager, _)) = &state.inhibit_manager else {
         error!("No ZwpIdleInhibitManagerV1 loaded");
         return Ok(());
@@ -173,6 +175,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     inhibitor.destroy();
     inhibit_manager.destroy();
     event_queue.roundtrip(&mut state).unwrap();
+
+    debug!("Cleaned up, exiting...");
 
     Ok(())
 }
