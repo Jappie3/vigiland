@@ -14,7 +14,7 @@
   in {
     devShells = forAllSystems (pkgs: {
       default = pkgs.mkShell {
-        buildInputs = with pkgs; [rustfmt cargo];
+        packages = with pkgs; [rustfmt cargo];
       };
     });
     packages = forAllSystems (pkgs: rec {
