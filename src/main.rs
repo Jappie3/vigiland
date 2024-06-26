@@ -124,6 +124,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let running = Arc::new(AtomicBool::new(false));
     signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::clone(&running))?;
+    signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&running))?;
 
     let connection = Connection::connect_to_env().unwrap();
     let mut event_queue = connection.new_event_queue();
