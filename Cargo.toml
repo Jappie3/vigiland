@@ -10,5 +10,6 @@ arc = "0.0.1"
 ctrlc = "3.4.4"
 env_logger = "0.11.3"
 log = "0.4.21"
+signal-hook = "0.3.17"
 wayland-client = "0.31.2"
 wayland-protocols = {version="0.31.2", features = ["client", "unstable"]}

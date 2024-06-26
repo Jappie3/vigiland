@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use wayland_client::{
     protocol::{
         wl_compositor, wl_registry,
@@ -127,13 +128,8 @@ impl Dispatch<ZwpIdleInhibitorV1, ()> for AppData {
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
 
-    let running = Arc::new(AtomicBool::new(true));
-    let r = running.clone();
-    ctrlc::set_handler(move || {
-        info!("Ctrl+C pressed, exiting...");
-        r.store(false, Ordering::SeqCst);
-    })
-    .expect("Error setting handler");
+    let running = Arc::new(AtomicBool::new(false));
+    signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::clone(&running))?;
 
     let connection = Connection::connect_to_env().unwrap();
     let mut event_queue = connection.new_event_queue();
@@ -157,7 +153,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     event_queue.roundtrip(&mut state).unwrap();
 
     // wait for exit
-    while running.load(Ordering::SeqCst) {
+    while !running.load(Ordering::Relaxed) {
         std::hint::spin_loop();
     }
 
